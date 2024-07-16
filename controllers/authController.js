@@ -42,7 +42,6 @@ export const checkUser = async (req, res, next) => {
 export const register = async (req, res, next) => {
     try {
         const { email, name, bio } = req.body;
-        console.log(email+" "+name+" "+bio+" "+req.file.path);
         if (!email || !name || !req.file || !bio) {
             return res.send({
                 success: false,
