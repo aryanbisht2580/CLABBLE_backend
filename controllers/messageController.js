@@ -1,6 +1,7 @@
 import path from "path";
 import prisma from "../config/prismaConfig.js";
 import {renameSync} from 'fs'
+import cloudinary from "../config/cloudinary.js";
 export const addMessage = async (req, res, next) => {
     try {
         const { message, from, to } = req.body;
@@ -98,20 +99,31 @@ export const getMessages = async (req, res, next) => {
                     const date=Date.now();
                     const newFilePath="uploads/"+date+req.file.originalname;
                     renameSync(req.file.path,newFilePath);
-                    const message=await prisma.messages.create({
-                        data:{
-                            senderId:parseInt(from),
-                            receiverId:parseInt(to),
-                            message:newFilePath, 
-                            type:"image",
-                            messageStatus:onlineUsers.get(parseInt(to))?"read":"sent"
-
+                    cloudinary.uploader.upload(newFilePath,async(err,result)=>{
+                        if(err){
+                            console.log(err);
+                            return res.send({
+                                success:false,
+                                message:"error in uploading image!!!"
+                            })
                         }
+                        const message=await prisma.messages.create({
+                            data:{
+                                senderId:parseInt(from),
+                                receiverId:parseInt(to),
+                                message:result.url, 
+                                type:"image",
+                                messageStatus:onlineUsers.get(parseInt(to))?"read":"sent"
+    
+                            }
+                        })
+                        
+                        res.send({
+                            success:true,
+                            message
+                        })
                     })
-                    res.send({
-                        success:true,
-                        message
-                    })
+
                 }
                 else{
                     return res.send({

@@ -2,6 +2,7 @@ import prisma from "../config/prismaConfig.js";
 import { renameSync } from 'fs'
 import dotenv from "dotenv"
 import { generateToken04 } from "../config/tokenGenerator.js";
+import cloudinary from "../config/cloudinary.js";
 dotenv.config();
 export const checkUser = async (req, res, next) => {
     try {
@@ -51,13 +52,25 @@ export const register = async (req, res, next) => {
         const date = Date.now();
         const newFilePath = "uploads/auth/" + date + req.file.originalname
         renameSync(req.file.path, newFilePath)
-        const newuser = await prisma.user.create({
-            data: { email, name, image: `https://clabble-backend.onrender.com/${newFilePath}`, bio }
-        });
-        return res.send({
-            success: true,
-            newuser
+        cloudinary.uploader.upload(newFilePath,async(err,result)=>{
+            if(err){
+                console.log(err);
+                return res.send({
+                    success:false,
+                    message:"error in uploading image!!!"
+                })
+            }
+            const newuser = await prisma.user.create({
+                data: { email, name, image:result.url, bio }
+            });
+            return res.send({
+                success: true,
+                newuser
+            })
+
         })
+
+        
     } catch (err) {
         console.log(err);
         next(err);

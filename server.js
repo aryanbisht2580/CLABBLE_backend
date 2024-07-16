@@ -37,7 +37,6 @@ io.on("connection",(socket)=>{
         })
     })
     socket.on("logOut",(userId)=>{
-        console.log(userId);
         onlineUsers.delete(userId)
         socket.broadcast.emit("remove-user",{
             onlineUsers:Array.from(onlineUsers.keys())
@@ -45,7 +44,6 @@ io.on("connection",(socket)=>{
     })
     socket.on("send-msg",(data)=>{
         const sendUserSocket=onlineUsers.get(data.to);
-        console.log("send-msg")
         if(sendUserSocket){
             socket.to(sendUserSocket).emit("receive-msg",{
                 ...data,receiverId:data.to,senderId:data.from
@@ -64,7 +62,6 @@ io.on("connection",(socket)=>{
     
     socket.on("outgoing-voice-call",(data)=>{
         const sendUserSocket=onlineUsers.get(data.to);
-        console.log(data,sendUserSocket)
         if(sendUserSocket){
             socket.to(sendUserSocket).emit("incoming-voice-call",{...data})
         }
@@ -78,7 +75,6 @@ io.on("connection",(socket)=>{
     })
     socket.on("reject-voice-call",(data)=>{
         const sendUserSocket=onlineUsers.get(data.from.id);
-        console.log(data.from,sendUserSocket)
         if(sendUserSocket){
             socket.to(sendUserSocket).emit("reject-voice-call")
         }
