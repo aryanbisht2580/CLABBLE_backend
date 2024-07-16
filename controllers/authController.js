@@ -53,7 +53,7 @@ export const register = async (req, res, next) => {
         const newFilePath = "uploads/auth/" + date + req.file.originalname
         renameSync(req.file.path, newFilePath)
         const newuser = await prisma.user.create({
-            data: { email, name, image: `http://localhost:${process.env.PORT}/${newFilePath}`, bio }
+            data: { email, name, image: `https://clabble-backend.onrender.com/${newFilePath}`, bio }
         });
         return res.send({
             success: true,
