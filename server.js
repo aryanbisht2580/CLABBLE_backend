@@ -5,8 +5,10 @@ import cors from "cors"
 import userRouter from "./routers/userRouter.js";
 import messageRouter from "./routers/messageRouter.js";
 import { Server } from "socket.io";
+import { croning } from "./config/cron.js";
 
 dotenv.config();
+croning();
 const app=express();
 app.use(cors())
 app.use(express.json());
